@@ -1402,7 +1402,7 @@ class Square (SpriteNode):
 		elif self.state == 2:
 			tex = Texture('typb:Star')
 		self.star_icon = SpriteNode(texture = tex, position = self.position, size = (square_size - 5, square_size - 5))
-		self.star_icon.z_position = 0.81
+		self.star_icon.z_position = 0.6
 		self.parent.add_child(self.star_icon)
 		
 
