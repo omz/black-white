@@ -1,10 +1,7 @@
 import pickle
 
-file = open("bwsave.dat", "rb")
-test = pickle.load(file)
-file.close()
+with open("bwsave.dat", "rb") as in_file:
+	test = pickle.load(in_file)
 
-test.sort(reverse=True)
-
-for x in test:
-	print x[0], "-", x[1]
+for x in sorted(test, reverse=True):
+	print('{} - {}'.format(*x))
