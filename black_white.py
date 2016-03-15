@@ -769,12 +769,12 @@ class Game (Scene):
 		if number > int((self.get_high_score(1))[0]):
 			try:
 				my_name = console.input_alert("Congratulations!", str(number) + " is now the highest score!\n\nEnter your name...")
-			except:
+			except KeyboardInterrupt:
 				return
 		elif number >= int((self.get_high_score(10))[0]):
 			try:
 				my_name = console.input_alert("Top 10 Score!", "Your score of " + str(number) + " is in the Top 10!\n\nEnter your name...")
-			except:
+			except KeyboardInterrupt:
 				return
 		scores.append([number, my_name])
 		scores.sort(reverse=True)
@@ -919,10 +919,7 @@ class Game (Scene):
 		
 		# Powerup max indicators
 		for item in (self.p1, self.p2, self.p3):
-			if item[2].text == "9":
-				item[3].alpha = 1
-			else:
-				item[3].alpha = 0
+			item[3].alpha = int(item[2].text == "9")
 		
 		self.timing()
 	
