@@ -3,7 +3,7 @@
 
 Author: Chris Wilson (chriswilson1982)
 
-Contributors: cclauss
+Contributors: cclauss, omz
 
 Last updated: 15 March 2016
 
