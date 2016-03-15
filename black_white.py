@@ -4,7 +4,7 @@
 
 from scene import *
 from math import pi
-from random import choice, randint, randrange, random
+from random import choice, randint, randrange, random, uniform
 from time import sleep, time
 import console, pickle, sound, ui
 
