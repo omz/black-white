@@ -737,8 +737,8 @@ class Game (Scene):
 
 	# Move black and white square counters
 	def move_counters(self):
-		black_list = [square for square in self.square if square.state == 1]
-		white_list = [square for square in self.square if square.state == 2]
+		black_list = [square for square in self.squares if square.state == 1]
+		white_list = [square for square in self.squares if square.state == 2]
 		if black_list:
 			self.black_count.text = str(len(black_list))
 		if white_list:
