@@ -486,8 +486,7 @@ class Game (Scene):
 				square.run_action(A.sequence(A.wait(2),A.group(A.scale_to(0, 3), A.fade_to(0, 2), A.move_to(bg_target[0], bg_target[1], 2, TIMING_SINODIAL)), A.remove()))
 		self.start.color = color3
 		self.finish.color = color3
-		self.score_change(-1 * int(self.score.text), self.win)
-		self.score.text = "0"
+		self.score.color = color3
 		self.backdrop5.color = color3
 		self.level_label.text = choice(fail_text)
 		self.move_counters()
@@ -584,6 +583,7 @@ class Game (Scene):
 
 	# Start a new game
 	def new_game(self, win):
+		self.score.color = color1
 		for item in (self.timer_mark, self.timer_mark_2):
 			item.alpha = 1
 			item.run_action(A.sequence(A.scale_y_to(0.6, 0), A.scale_y_to(1, 0.3)))
