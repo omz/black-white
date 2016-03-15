@@ -1,5 +1,9 @@
 import pickle
 
+# Select difficulty and run script to reset highscore table to data below
+
+difficulty = 2 # Change this (1-easy, 2-regular, 3-hard)
+
 scores = [
 [100, "Player"],
 [200, "Player"],
@@ -13,6 +17,5 @@ scores = [
 [1000, "Player"]
 ]
 
-file = open("bwsave3.dat", "wb")
-pickle.dump(scores, file)
-file.close()
+with open("bwsave"+str(difficulty)+".dat", "wb") as in_file:
+  pickle.dump(scores, in_file)
