@@ -498,10 +498,7 @@ class Game (Scene):
 		else:
 			text = ""
 		
-		red_count = 0
-		for square in self.squares:
-			if square.state == 0:
-				red_count += 1
+		red_count = len([square for square in self.squares if square.state == 0])
 		if win:	
 			self.score_label1 = LabelNode(text, font = ('Helvetica', 40), color = color4, position = (screen_w / 2, 150), size = (square_size, square_size), z_position = 0.8, alpha = 0)
 			self.add_child(self.score_label1)
@@ -593,7 +590,7 @@ class Game (Scene):
 				self.level = 0
 				self.level_label.text = 'level ' + str(self.level)
 				self.losing()
-			except:
+			except KeyboardInterrupt:
 				return
 		
 		# Alter variables
@@ -732,14 +729,8 @@ class Game (Scene):
 
 	# Move black and white square counters
 	def move_counters(self):
-		black_list = []
-		white_list = []
-		for square in self.squares:
-			if square.state == 1:
-				black_list.append(square)
-			elif square.state == 2:
-				white_list.append(square)
-				
+		black_list = [square for square in self.square if square.state == 1]
+		white_list = [square for square in self.square if square.state == 2]
 		if black_list:
 			self.black_count.text = str(len(black_list))
 		if white_list:
@@ -765,7 +756,7 @@ class Game (Scene):
 		except:
 			self.white_count.position = (-100, -100)
 		
-		if len(white_list) == 0:
+		if not white_list:
 			self.no_whites = True
 		
 		
@@ -806,10 +797,7 @@ class Game (Scene):
 		display = []
 		scores = self.load(difficulty)
 		scores.sort(reverse = True)
-		if len(scores)<=10:
-			length = len(scores)
-		else:
-			length = 10
+		length = max(len(scores), 10)
 		for x in range(length):
 			display.append((str((str(x+1)+":  "+scores[x][1]))).ljust(20, " ") + "\t" + (str(scores[x][0])).rjust(6, " "))
 		is_timing = False
@@ -817,7 +805,7 @@ class Game (Scene):
 		text = {1:"Easy", 2:"Regular", 3:"Hard"}
 		try:
 			console.alert("High Scores - "+text[difficulty]+"\n", "\n\n".join(display), "OK", hide_cancel_button = True)
-		except:
+		except KeyboardInterrupt:
 			pass
 	
 	# Load highscores
@@ -832,8 +820,7 @@ class Game (Scene):
 	def timing(self):
 		if self.can_play:
 			time_allowed = 61 - (difficulty * 10) - (self.level * 0.5 * difficulty)
-			if time_allowed < 5:
-				time_allowed = 5
+			time_allowed = min(time_allowed, 5)
 			
 			time_elapsed = self.t - self.timestamp
 			
@@ -905,11 +892,8 @@ class Game (Scene):
 				bg.position += (gravity()[0] * 0.1 * bg.speed, gravity()[1] * 0.1 * bg.speed)
 			else:
 				bg.position += (gravity()[0] * -0.1 * bg.speed, gravity()[1] * -0.1 * bg.speed)
-		
-		if int(self.score.text) > 0:
-			self.settings.alpha = 0.2
-		else:
-			self.settings.alpha = 1
+
+		self.settings.alpha = 0.2 if int(self.score.text) > 0 else 1
 		
 		for square in self.squares:
 			if square.state == 2:
@@ -928,7 +912,7 @@ class Game (Scene):
 			self.powerup3_bg.color = color1
 			self.powerup3.texture = Texture('typw:Contrast')
 			self.p3_count.color = color2
-		elif not self.can_flip:
+		else:
 			self.powerup3_bg.color = color2
 			self.powerup3.texture = Texture('typb:Contrast')
 			self.p3_count.color = color1
@@ -937,7 +921,7 @@ class Game (Scene):
 		for item in (self.p1, self.p2, self.p3):
 			if item[2].text == "9":
 				item[3].alpha = 1
-			elif item[2].text != "9":
+			else:
 				item[3].alpha = 0
 		
 		self.timing()
@@ -988,7 +972,7 @@ class Game (Scene):
 				item.tint_color = text_color
 			red.value = 0.5
 			green.value = 0.5
-			blue.value =0.5
+			blue.value = 0.5
 			target = None
 		
 		# Selected color applied to target box continuously while aliders moved
@@ -1213,10 +1197,8 @@ class Game (Scene):
 		self.can_flip = False
 		self.stop_squares_moving()
 		self.level_label.text = "Restore a locked square"
-		if self.unlock == False:
-			self.unlock = True
-		elif self.unlock == True:
-			self.unlock = False
+		self.unlock = not self.unlock
+		if not self.unlock:
 			self.destroy_crosses()
 			self.level_label.text = "Level " + str(self.level)
 			return
@@ -1249,10 +1231,8 @@ class Game (Scene):
 		self.powerup3_bg.run_action(pressed_action_2)
 		self.p3_count.run_action(pressed_action_2)
 		sound.play_effect(button_sound)
-		if self.can_flip == False:
-			self.can_flip = True
-		elif self.can_flip == True:
-			self.can_flip = False
+		self.can_flip = not self.can_flip
+		if not self.can_flip:
 			self.level_label.text = "Level " + str(self.level)
 			for square in self.squares:
 				square.remove_all_actions()
@@ -1332,6 +1312,9 @@ class Square (SpriteNode):
 		if self.state == 2:
 			self.color = color2
 	
+	def set_color(self):
+		self.color = all_colors[self.state - 1]
+
 	# Find neighbouring white squares
 	def white_neighbours(self, square_list):
 		white_neighbours = []
