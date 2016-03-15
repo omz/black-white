@@ -422,6 +422,7 @@ class Game (Scene):
 				white_list.append(square)
 			if square.state >= 3:
 				add_score += 1
+				self.sparkle(color4, square.position, image='shp:RoundRect')
 		self.black_count.text = str(len(black_list))
 		self.white_count.text = str(len(white_list))
 		
@@ -429,6 +430,7 @@ class Game (Scene):
 		
 		if self.star_square:
 			if self.star_square.state >= 3:
+				self.sparkle(color1, self.star_square.position, image='shp:Star', spread = 40, z_position = 0.99)
 				p_list = []
 				for item in (self.p1_count, self.p2_count, self.p3_count):
 					if int(item.text) < 9:
@@ -438,6 +440,7 @@ class Game (Scene):
 				
 				powerup = choice(p_list)
 				pos = powerup.position
+				self.star_square.star_icon.z_position = 0.9
 				self.star_square.star_icon.run_action(A.sequence(A.scale_to(1.2, 0.1), A.scale_to(1, 0.1), A.group(A.move_to(pos[0], pos[1], 1.5, TIMING_SINODIAL), A.fade_to(0, 1.4, TIMING_EASE_IN), A.rotate_by(2 * pi, 2)), A.remove()))
 				powerup.run_action(A.sequence(A.wait(1.4), A.scale_to(1.5, 0.2, TIMING_BOUNCE_IN_OUT), A.scale_to(1, 0.2)))
 			
@@ -448,6 +451,7 @@ class Game (Scene):
 					self.ten.run_action(A.sequence(A.wait(0.2), A.group(A.move_to(pos[0], pos[1]+30, 1.5, TIMING_SINODIAL), A.fade_to(0, 1.4, TIMING_EASE_IN)), A.remove()))
 					
 					for item in (self.p_max_1, self.p_max_2, self.p_max_3):
+						self.sparkle(color4, item.position, image='shp:Star') 
 						item.run_action(A.sequence(A.scale_to(1.2, 0.4), A.scale_to(1, 0.4)))
 				else:
 					powerup.text = str(int(powerup.text) + 1)
@@ -464,11 +468,15 @@ class Game (Scene):
 		score_value = int(self.score.text)
 		sound.play_effect(fail_sound)
 		self.green_timer_background.fill_color = color3
+		self.sparkle(color3, self.start.position, image='shp:RoundRect')
 		for square in self.squares:
 			if square.star:
+				square.star_icon.z_position = 1
 				square.star_icon.run_action(A.sequence(A.scale_to(0, 1), A.remove()))
-			if square.state in (0, 3):
+			if square.state == 3:
+				self.sparkle(color3, square.position, image='shp:RoundRect')
 				square.state = 0
+			if square.state == 0:	
 				square.color = color3
 				try:
 					square.red_square.run_action(A.remove())
@@ -779,9 +787,9 @@ class Game (Scene):
 		scores.append([number, my_name])
 		scores.sort(reverse=True)
 		scores = scores[:10]
-		file = open("bwsave"+str(difficulty)+".dat", "wb")
-		pickle.dump(scores, file)
-		file.close()
+		in_file = open("bwsave"+str(difficulty)+".dat", "wb")
+		pickle.dump(scores, in_file)
+		in_file.close()
 
 	# Get top score (not currently used)
 	def get_high_score(self, rank):
@@ -811,16 +819,16 @@ class Game (Scene):
 	# Load highscores
 	def load(self, diff):
 		
-		file = open("bwsave"+str(diff)+".dat", "rb")
-		scores = pickle.load(file)
-		file.close()
+		in_file = open("bwsave"+str(diff)+".dat", "rb")
+		scores = pickle.load(in_file)
+		in_file.close()
 		return scores
 
 	# Use timestamp for countdown
 	def timing(self):
 		if self.can_play:
 			time_allowed = 61 - (difficulty * 10) - (self.level * 0.5 * difficulty)
-			time_allowed = min(time_allowed, 5)
+			time_allowed = max(time_allowed, 5)
 			
 			time_elapsed = self.t - self.timestamp
 			
@@ -830,6 +838,7 @@ class Game (Scene):
 				self.can_play = False
 				self.timer_mark.run_action(A.fade_to(0,0))
 				self.timer_mark_2.run_action(A.fade_to(0,0))
+				self.sparkle(color3, self.restart_button.position, image='shp:Circle', spread = 50, z_position = 0.2, n = 20)
 				self.commit()
 				return
 			
@@ -883,9 +892,17 @@ class Game (Scene):
 			except:
 				pass
 	
+	# Provides particle effects
+	def sparkle(self, color, position, image = 'shp:sparkle', spread = 40, z_position = 0.6, n = 6):
+		for i in xrange(n):
+			p = SpriteNode(image, position=position, color=color, z_position = z_position, alpha = 0.7)
+			r = spread
+			dx, dy = uniform(-r, r), uniform(-r, r)
+			p.run_action(A.sequence(A.group(A.scale_to(0, 0.8), A.move_by(dx, dy, 0.8, TIMING_EASE_OUT_2)), A.remove()))
+			self.add_child(p)
 		
 	#---Update
-	# Updated evwry frame
+	# Updated every frame
 	def update(self):
 		for bg in self.bg_list:
 			if self.bg_list.index(bg) % 2 == 0:
@@ -972,7 +989,7 @@ class Game (Scene):
 			blue.value = 0.5
 			target = None
 		
-		# Selected color applied to target box continuously while aliders moved
+		# Selected color applied to target box continuously while sliders moved
 		def get_color(sender):
 			global target
 			try:
@@ -982,7 +999,7 @@ class Game (Scene):
 			except:
 				pass
 		
-		# Set which color box the color sloders apply to
+		# Set which color box the color sliders apply to
 		def set_target(sender):
 			global target
 			sound.play_effect(button_sound)
